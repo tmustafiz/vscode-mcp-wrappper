@@ -27,8 +27,9 @@ A VS Code extension that provides advanced database tooling for internal use, in
 
 3. **Configure environment variables**
    - You can set the following environment variables to point to your MCP backend:
-     - `MCP_BASE` (default: `https://mcp.internal.example`)
-     - `MCP_TOKEN` (if authentication is required)
+     - `MCP_BASE` (default: `mcp.internal.example`) - The MCP server URL (protocol will be auto-detected)
+     - `MCP_TOKEN` (optional) - Authentication token if required by your MCP server
+     - `MCP_ALLOW_INSECURE` (optional) - Set to `true` to allow HTTP fallback if HTTPS is not available
    - For local development, you can add these to your shell profile or use a `.env` loader.
 
 ## Build Instructions
@@ -119,10 +120,45 @@ Once installed, your extension will be active and the following tools will be av
 
 ![Extension Management](docs/images/extension-management.png)
 
+## Fallback Mechanisms
+
+The extension includes several fallback mechanisms to handle different MCP server configurations:
+
+### **Protocol Detection**
+- **HTTPS First**: The extension tries HTTPS first for security
+- **HTTP Fallback**: If `MCP_ALLOW_INSECURE=true` is set, it will fallback to HTTP if HTTPS fails
+- **Auto-detection**: No need to specify protocol in `MCP_BASE` - just use the hostname
+
+### **Authentication**
+- **Optional Token**: If `MCP_TOKEN` is not provided, the extension will connect without authentication
+- **Bearer Token**: When provided, uses standard Bearer token authentication
+
+### **Connection Resilience**
+- **Retry Logic**: Automatically retries failed connections with exponential backoff
+- **Timeout Handling**: Configurable timeouts prevent hanging connections
+- **Graceful Degradation**: If MCP server is unavailable, tools return helpful error messages
+
+### **Example Configurations**
+
+```bash
+# Basic HTTPS connection
+export MCP_BASE="mcp.internal.example"
+export MCP_TOKEN="your-auth-token"
+
+# Allow HTTP fallback for development
+export MCP_BASE="localhost:3000"
+export MCP_ALLOW_INSECURE="true"
+
+# No authentication required
+export MCP_BASE="mcp.internal.example"
+# MCP_TOKEN not set
+```
+
 ## Troubleshooting
 - Ensure your MCP backend is reachable from your machine.
 - Make sure your environment variables are set if using a custom backend or authentication.
 - If you encounter build errors, ensure all dependencies are installed and you are using a compatible Node.js version.
+- Check the VS Code Developer Console for detailed connection logs.
 
 ## License
 Internal use only. 
