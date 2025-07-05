@@ -1,4 +1,4 @@
-import fetch, { HeadersInit } from 'node-fetch';        // Node 20 has global fetch but this keeps LTS 18 happy
+// Using native fetch (available in Node.js 18+)
 
 export interface ToolSpec {
   name: string;
@@ -80,7 +80,7 @@ export class McpClient {
     });
   }
 
-  private headers(extra: HeadersInit = {}) {
+  private headers(extra: Record<string, string> = {}) {
     return {
       ...(this.session ? { 'x-session': this.session } : {}),
       ...(this.authToken ? { Authorization: `Bearer ${this.authToken}` } : {}),

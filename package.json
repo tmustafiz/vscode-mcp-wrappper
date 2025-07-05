@@ -65,16 +65,14 @@
     "scripts": {
       "compile": "tsc -p .",
       "watch":   "tsc -watch -p .",
-      "package": "vsce package"
+      "package": "npx @vscode/vsce package"
     },
     "dependencies": {
-      "node-fetch": "^3.3.0"
     },
     "devDependencies": {
       "@types/node": "^20.11.19",
-      "@types/node-fetch": "^2.6.11",
       "@types/vscode": "^1.85.0",
       "typescript": "^5.4.0",
-      "vsce": "^2.15.0"
+      "@vscode/vsce": "^2.15.0"
     }
   }
