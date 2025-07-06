@@ -52,16 +52,19 @@ npm run compile
    npm run compile
    ```
 
-3. **Start a debug session**
+3. **Configure for Development** (if using local MCP server)
+   - The extension is pre-configured to handle non-secure connections in development
+   - Environment variables are set in `.vscode/launch.json` and `.vscode/settings.json`
+   - Default configuration: `localhost:3000` with HTTP fallback enabled
+
+4. **Start a debug session**
    - Press `F5` or go to the Run & Debug panel and select **Run Extension**.
    - This will launch a new VS Code window (Extension Development Host) with your extension loaded.
+   - The extension will automatically connect to your MCP server and register available tools.
 
-4. **Using the Tools**
-   - The extension registers the following tools for use in language model prompts:
-     - `db_listSchemas`
-     - `db_findRelatedTables`
-     - `db_runQuery`
-     - `db_generateErd`
+5. **Using the Tools**
+   - Tools are dynamically registered based on your MCP server's `tools/list` response
+   - Tool names are prefixed with `mcp_` (e.g., `mcp_listSchemas`)
    - These tools are available to language models that support the `lmTools` API proposal.
 
 ## Packaging for Distribution
@@ -105,12 +108,15 @@ npx vsce package
 
 ### **Step 4: Using the Extension**
 
-Once installed, your extension will be active and the following tools will be available to language models that support the `lmTools` API:
+Once installed, your extension will be active and **dynamically register all tools** provided by your MCP server. The available tools will depend on what your MCP server exposes via the `tools/list` endpoint.
 
-- `db_listSchemas` - List available database schemas
-- `db_findRelatedTables` - Find related tables by foreign keys
-- `db_runQuery` - Execute read-only SQL queries with streaming
-- `db_generateErd` - Generate entity-relationship diagrams
+**Example tools that might be available:**
+- `mcp_listSchemas` - List available database schemas
+- `mcp_findRelatedTables` - Find related tables by foreign keys
+- `mcp_runQuery` - Execute read-only SQL queries with streaming
+- `mcp_generateErd` - Generate entity-relationship diagrams
+
+**Note:** Tool names are prefixed with `mcp_` to avoid conflicts with other extensions.
 
 ### **Managing the Extension**
 
@@ -145,7 +151,11 @@ The extension includes several fallback mechanisms to handle different MCP serve
 export MCP_BASE="mcp.internal.example"
 export MCP_TOKEN="your-auth-token"
 
-# Allow HTTP fallback for development
+# Starlette ASGI server with trailing slash
+export MCP_BASE="http://localhost:8081/db-mcp-server/"
+export MCP_ALLOW_INSECURE="true"
+
+# Simple local development
 export MCP_BASE="localhost:3000"
 export MCP_ALLOW_INSECURE="true"
 
@@ -154,11 +164,38 @@ export MCP_BASE="mcp.internal.example"
 # MCP_TOKEN not set
 ```
 
+### **Starlette ASGI Server Support**
+
+The extension automatically handles Starlette ASGI servers that require trailing slashes:
+
+- **URL Normalization**: Automatically adds trailing slashes to pathnames
+- **Protocol Detection**: Handles both HTTP and HTTPS
+- **Path Handling**: Works with subpaths like `/db-mcp-server/`
+
+## MCP Protocol Implementation
+
+This extension uses the [official MCP TypeScript SDK](https://github.com/modelcontextprotocol/typescript-sdk) to implement the Model Context Protocol (MCP) client:
+
+- **Official SDK**: Uses `@modelcontextprotocol/sdk` for reliable protocol implementation
+- **HTTP Transport**: Uses `StreamableHTTPClientTransport` for HTTP+SSE communication
+- **Type Safety**: Leverages SDK's built-in schemas and type definitions
+- **Automatic Handling**: SDK manages connection, reconnection, and protocol details
+
+### **Key Features**
+
+- **Dynamic Tool Registration**: Automatically discovers and registers all tools from your MCP server
+- **Robust Connection**: Automatic reconnection with exponential backoff
+- **Error Handling**: Comprehensive error handling and logging
+- **Type Safety**: Full TypeScript support with proper schemas
+- **Streaming Support**: Native support for streaming tool responses
+- **Adaptive**: Works with any MCP server without code changes
+
 ## Troubleshooting
 - Ensure your MCP backend is reachable from your machine.
 - Make sure your environment variables are set if using a custom backend or authentication.
 - If you encounter build errors, ensure all dependencies are installed and you are using a compatible Node.js version.
 - Check the VS Code Developer Console for detailed connection logs.
+- Verify your MCP server implements the correct protocol version (`2024-11-05`).
 
 ## License
 Internal use only. 

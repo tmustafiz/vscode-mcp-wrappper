@@ -2,77 +2,31 @@
     "name": "vascode-mcp-wrapper",
     "displayName": "Internal DB Tools",
     "version": "0.0.1",
-    "engines": { "vscode": "^1.99.0" },
-    "enabledApiProposals": ["lmTools"],
-    "activationEvents": [ "onStartupFinished" ],
+    "engines": {
+        "vscode": "^1.99.0"
+    },
+    "enabledApiProposals": [
+        "lmTools"
+    ],
+    "activationEvents": [
+        "onStartupFinished"
+    ],
     "main": "./dist/extension.js",
     "contributes": {
-      "languageModelTools": [
-        {
-          "name": "db_listSchemas",
-          "displayName": "List Schemas",
-          "toolReferenceName": "listSchemas",
-          "canBeReferencedInPrompt": true,
-          "modelDescription": "Return the names of all database schemas the caller may query.",
-          "inputSchema": { "type": "object", "properties": {} }
-        },
-        {
-          "name": "db_findRelatedTables",
-          "displayName": "Find Related Tables",
-          "toolReferenceName": "relatedTables",
-          "canBeReferencedInPrompt": true,
-          "modelDescription": "Given a base table and schema, return tables related by foreign keys or common prefixes.",
-          "inputSchema": {
-            "type": "object",
-            "required": ["schema", "baseTable"],
-            "properties": {
-              "schema":   { "type": "string", "description": "Schema name" },
-              "baseTable":{ "type": "string", "description": "The anchor table" }
-            }
-          }
-        },
-        {
-          "name": "db_runQuery",
-          "displayName": "Run SQL Query",
-          "toolReferenceName": "runQuery",
-          "canBeReferencedInPrompt": true,
-          "modelDescription": "Execute read-only SQL and return the first 250 rows as JSON.",
-          "inputSchema": {
-            "type": "object",
-            "required": ["sql"],
-            "properties": {
-              "sql": { "type": "string", "description": "SELECT-only statement" }
-            }
-          }
-        },
-        {
-          "name": "db_generateErd",
-          "displayName": "Generate ERD",
-          "toolReferenceName": "generateErd",
-          "canBeReferencedInPrompt": true,
-          "modelDescription": "Produce an entity-relationship diagram of the requested schema in Mermaid-class format.",
-          "inputSchema": {
-            "type": "object",
-            "required": ["schema"],
-            "properties": {
-              "schema": { "type": "string", "description": "Schema to diagram" },
-              "format": { "type": "string", "enum": ["mermaid", "json"], "default": "mermaid" }
-            }
-          }
-        }
-      ]
+        "languageModelTools": []
     },
     "scripts": {
-      "compile": "tsc -p .",
-      "watch":   "tsc -watch -p .",
-      "package": "npx @vscode/vsce package"
+        "compile": "tsc -p .",
+        "watch": "tsc -watch -p .",
+        "package": "npx @vscode/vsce package"
     },
     "dependencies": {
+        "@modelcontextprotocol/sdk": "^1.15.0"
     },
     "devDependencies": {
-      "@types/node": "^20.11.19",
-      "@types/vscode": "^1.85.0",
-      "typescript": "^5.4.0",
-      "@vscode/vsce": "^2.15.0"
+        "@types/node": "^20.11.19",
+        "@types/vscode": "^1.85.0",
+        "@vscode/vsce": "^2.15.0",
+        "typescript": "^5.4.0"
     }
-  }
+}

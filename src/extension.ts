@@ -1,5 +1,6 @@
 import * as vscode from 'vscode';
 import { McpClient } from './mcpClient';
+import { ListToolsResultSchema } from '@modelcontextprotocol/sdk/types.js';
 
 const SERVER = process.env['MCP_BASE'] ?? 'mcp.internal.example';
 const TOKEN = process.env['MCP_TOKEN'];
@@ -21,6 +22,20 @@ export async function activate(ctx: vscode.ExtensionContext) {
     // Initialize connection
     await client.init();
     console.log('MCP client initialized successfully');
+
+    // Get available tools from the server
+    const toolsResult = await client.getClient().request({
+      method: 'tools/list',
+      params: {}
+    }, ListToolsResultSchema);
+
+    console.log(`Found ${toolsResult.tools.length} tools from MCP server`);
+
+    // Dynamically register each tool
+    for (const tool of toolsResult.tools) {
+      await registerTool(ctx, client, tool);
+    }
+
   } catch (error) {
     console.error('Failed to initialize MCP client:', error);
     
@@ -34,110 +49,62 @@ export async function activate(ctx: vscode.ExtensionContext) {
     // Return early - tools won't be available
     return;
   }
+}
 
-  // --- db_listSchemas -------------------------------------------------------
-  ctx.subscriptions.push(
-    vscode.lm.registerTool('db_listSchemas', {
-      async invoke() {
-        try {
-          if (!client.isReady()) {
-            throw new Error('MCP client not ready');
-          }
-          const rows = await client.json<string[]>('/tools/listSchemas', {});
-          return new vscode.LanguageModelToolResult(
-            [new vscode.LanguageModelTextPart(JSON.stringify(rows))]
-          );
-        } catch (error) {
-          console.error('db_listSchemas failed:', error);
-          return new vscode.LanguageModelToolResult(
-            [new vscode.LanguageModelTextPart(`Error: Unable to list schemas. ${error}`)]
-          );
-        }
-      }
-    })
-  );
+/** Dynamically register a tool based on server response */
+async function registerTool(ctx: vscode.ExtensionContext, client: McpClient, tool: any) {
+  try {
+    const toolName = `mcp_${tool.name}`;
+    const displayName = tool.displayName || tool.name;
+    
+    console.log(`Registering tool: ${toolName} (${displayName})`);
 
-  // --- db_findRelatedTables --------------------------------------------------
-  ctx.subscriptions.push(
-    vscode.lm.registerTool('db_findRelatedTables', {
-      async invoke(o: { input: { schema: string; baseTable: string } }) {
-        try {
-          if (!client.isReady()) {
-            throw new Error('MCP client not ready');
-          }
-          const { schema, baseTable } = o.input;
-          const related = await client.json<string[]>(
-            '/tools/findRelatedTables',
-            { schema, baseTable }
-          );
-          return new vscode.LanguageModelToolResult(
-            [new vscode.LanguageModelTextPart(JSON.stringify(related))]
-          );
-        } catch (error) {
-          console.error('db_findRelatedTables failed:', error);
-          return new vscode.LanguageModelToolResult(
-            [new vscode.LanguageModelTextPart(`Error: Unable to find related tables. ${error}`)]
-          );
-        }
-      }
-    })
-  );
+    ctx.subscriptions.push(
+      vscode.lm.registerTool(toolName, {
+        async invoke(input: any, token: vscode.CancellationToken) {
+          try {
+            if (!client.isReady()) {
+              throw new Error('MCP client not ready');
+            }
 
-  // --- db_runQuery (streams SSE) --------------------------------------------
-  ctx.subscriptions.push(
-    vscode.lm.registerTool('db_runQuery', {
-      async invoke(o: { input: { sql: string } }, tok: vscode.CancellationToken) {
-        try {
-          if (!client.isReady()) {
-            throw new Error('MCP client not ready');
+            // Handle streaming vs non-streaming tools
+            if (tool.inputSchema?.type === 'object' && tool.inputSchema.properties?.stream === 'boolean') {
+              // Streaming tool
+              const chunks: string[] = [];
+              const close = await client.stream(
+                tool.name,
+                input.input || {},
+                data => chunks.push(JSON.stringify(data))
+              );
+              token.onCancellationRequested(close);
+              await new Promise(r => setTimeout(r, 1)); // yield till first chunk
+              return new vscode.LanguageModelToolResult(
+                [new vscode.LanguageModelTextPart(chunks.join('\n'))]
+              );
+            } else {
+              // Non-streaming tool
+              const result = await client.json(
+                tool.name,
+                input.input || {}
+              );
+              return new vscode.LanguageModelToolResult(
+                [new vscode.LanguageModelTextPart(JSON.stringify(result))]
+              );
+            }
+          } catch (error) {
+            console.error(`${toolName} failed:`, error);
+            return new vscode.LanguageModelToolResult(
+              [new vscode.LanguageModelTextPart(`Error: Unable to execute ${displayName}. ${error}`)]
+            );
           }
-          const { sql } = o.input;
-          const chunks: string[] = [];
-          const close = await client.stream(
-            '/tools/runQuery',
-            { sql, limit: 250 },
-            data => chunks.push(JSON.stringify(data))
-          );
-          tok.onCancellationRequested(close);
-          await new Promise(r => setTimeout(r, 1)); // yield till first chunk
-          return new vscode.LanguageModelToolResult(
-            [new vscode.LanguageModelTextPart(chunks.join('\n'))]
-          );
-        } catch (error) {
-          console.error('db_runQuery failed:', error);
-          return new vscode.LanguageModelToolResult(
-            [new vscode.LanguageModelTextPart(`Error: Unable to run query. ${error}`)]
-          );
         }
-      }
-    })
-  );
+      })
+    );
 
-  // --- db_generateErd --------------------------------------------------------
-  ctx.subscriptions.push(
-    vscode.lm.registerTool('db_generateErd', {
-      async invoke(o: { input: { schema: string; format?: string } }) {
-        try {
-          if (!client.isReady()) {
-            throw new Error('MCP client not ready');
-          }
-          const { schema, format = 'mermaid' } = o.input;
-          const body = await client.json<string>(
-            '/tools/generateErd',
-            { schema, format }
-          );
-          return new vscode.LanguageModelToolResult(
-            [new vscode.LanguageModelTextPart(body)]
-          );
-        } catch (error) {
-          console.error('db_generateErd failed:', error);
-          return new vscode.LanguageModelToolResult(
-            [new vscode.LanguageModelTextPart(`Error: Unable to generate ERD. ${error}`)]
-          );
-        }
-      }
-    })
-  );
+    console.log(`Successfully registered tool: ${toolName}`);
+  } catch (error) {
+    console.error(`Failed to register tool ${tool.name}:`, error);
+  }
 }
 
 export function deactivate() {}
