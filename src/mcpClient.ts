@@ -35,12 +35,9 @@ export class McpClient {
     // Create HTTP transport for the MCP client
     this.transport = new StreamableHTTPClientTransport(new URL(normalizedUrl), {
       requestInit: {
-        headers: authToken ? { Authorization: `Bearer ${authToken}` } : {},
-        // Handle non-secure connections in development
-        ...(process.env.NODE_TLS_REJECT_UNAUTHORIZED === '0' && {
-          // This is for development only - allows self-signed certificates
-          rejectUnauthorized: false
-        })
+        headers: authToken ? { Authorization: `Bearer ${authToken}` } : {}
+        // NODE_EXTRA_CA_CERTS is handled automatically by Node.js
+        // No need to set rejectUnauthorized when using proper CA certificates
       }
     });
   }

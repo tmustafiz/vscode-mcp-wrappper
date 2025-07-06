@@ -155,7 +155,15 @@ export MCP_TOKEN="your-auth-token"
 export MCP_BASE="http://localhost:8081/db-mcp-server/"
 export MCP_ALLOW_INSECURE="true"
 
-# Simple local development
+# With custom CA certificate (multiple options)
+export NODE_EXTRA_CA_CERTS="/path/to/your/ca-certificate.crt"
+export MCP_BASE="https://localhost:8081/db-mcp-server/"
+
+# Or use system certificate store
+export NODE_EXTRA_CA_CERTS="/etc/ssl/certs/ca-certificates.crt"
+export MCP_BASE="https://mcp.internal.example"
+
+# Simple local development (HTTP)
 export MCP_BASE="localhost:3000"
 export MCP_ALLOW_INSECURE="true"
 
@@ -163,6 +171,15 @@ export MCP_ALLOW_INSECURE="true"
 export MCP_BASE="mcp.internal.example"
 # MCP_TOKEN not set
 ```
+
+### **Certificate Configuration**
+
+The extension supports secure connections using `NODE_EXTRA_CA_CERTS`:
+
+- **System Environment**: Set `NODE_EXTRA_CA_CERTS` in your shell profile
+- **VS Code Integration**: Automatically reads from your environment
+- **Multiple Formats**: Supports `.crt`, `.pem`, and `.p12` files
+- **System Certificates**: Can point to system certificate stores
 
 ### **Starlette ASGI Server Support**
 

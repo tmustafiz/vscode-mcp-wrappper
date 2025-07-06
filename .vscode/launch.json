@@ -12,7 +12,7 @@
                 "${workspaceFolder}/dist/**/*.js"
             ],
             "env": {
-                "NODE_TLS_REJECT_UNAUTHORIZED": "0",
+                "NODE_EXTRA_CA_CERTS": "${env:NODE_EXTRA_CA_CERTS}",
                 "MCP_BASE": "http://localhost:8081/db-mcp-server/",
                 "MCP_ALLOW_INSECURE": "true"
             }
