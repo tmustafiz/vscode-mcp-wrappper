@@ -2,18 +2,126 @@
     "name": "vascode-mcp-wrapper",
     "displayName": "Internal DB Tools",
     "version": "0.0.1",
-    "engines": {
-        "vscode": "^1.99.0"
+    "publisher": "internal-dev",
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/internal/vscode-mcp-wrapper.git"
     },
-    "enabledApiProposals": [
-        "lmTools"
-    ],
+    "engines": {
+        "vscode": "^1.101.0"
+    },
     "activationEvents": [
         "onStartupFinished"
     ],
     "main": "./dist/extension.js",
     "contributes": {
-        "languageModelTools": []
+        "languageModelTools": [],
+        "commands": [
+            {
+                "command": "mcp-wrapper.reconnect",
+                "title": "MCP: Reconnect to Server",
+                "category": "MCP"
+            },
+            {
+                "command": "mcp-wrapper.showStatus",
+                "title": "MCP: Show Server Status",
+                "category": "MCP"
+            },
+            {
+                "command": "mcp-wrapper.listTools",
+                "title": "MCP: List Available Tools",
+                "category": "MCP"
+            },
+            {
+                "command": "mcp-wrapper.openToolPicker",
+                "title": "MCP: Open Tool Picker",
+                "category": "MCP"
+            },
+            {
+                "command": "mcp-wrapper.testTool",
+                "title": "MCP: Test Tool",
+                "category": "MCP"
+            }
+        ],
+        "menus": {
+            "commandPalette": [
+                {
+                    "command": "mcp-wrapper.reconnect",
+                    "when": "true"
+                },
+                {
+                    "command": "mcp-wrapper.showStatus",
+                    "when": "true"
+                },
+                {
+                    "command": "mcp-wrapper.listTools",
+                    "when": "true"
+                },
+                {
+                    "command": "mcp-wrapper.openToolPicker",
+                    "when": "true"
+                },
+                {
+                    "command": "mcp-wrapper.testTool",
+                    "when": "true"
+                }
+            ],
+            "view/title": [
+                {
+                    "command": "mcp-wrapper.reconnect",
+                    "when": "view == mcpWrapperView",
+                    "group": "navigation"
+                }
+            ]
+        },
+        "viewsContainers": {
+            "activitybar": [
+                {
+                    "id": "mcpWrapper",
+                    "title": "MCP Tools",
+                    "icon": "$(server)"
+                }
+            ]
+        },
+        "views": {
+            "mcpWrapper": [
+                {
+                    "id": "mcpWrapperView",
+                    "name": "Available Tools",
+                    "when": "true"
+                }
+            ]
+        },
+        "configuration": {
+            "title": "MCP Wrapper",
+            "properties": {
+                "mcpWrapper.serverUrl": {
+                    "type": "string",
+                    "default": "http://localhost:8081/db-mcp-server/",
+                    "description": "MCP server URL (e.g., 'localhost:8000' or 'https://mcp.example.com')"
+                },
+                "mcpWrapper.authToken": {
+                    "type": "string",
+                    "default": "",
+                    "description": "Authentication token for MCP server (optional)"
+                },
+                "mcpWrapper.allowInsecure": {
+                    "type": "boolean",
+                    "default": false,
+                    "description": "Allow insecure HTTP connections (for development)"
+                },
+                "mcpWrapper.timeout": {
+                    "type": "number",
+                    "default": 10000,
+                    "description": "Connection timeout in milliseconds"
+                },
+                "mcpWrapper.retries": {
+                    "type": "number",
+                    "default": 3,
+                    "description": "Number of connection retry attempts"
+                }
+            }
+        }
     },
     "scripts": {
         "compile": "tsc -p .",
@@ -21,11 +129,12 @@
         "package": "npx @vscode/vsce package"
     },
     "dependencies": {
-        "@modelcontextprotocol/sdk": "^1.15.0"
+        "@modelcontextprotocol/sdk": "^1.15.0",
+        "zod": "^3.23.0"
     },
     "devDependencies": {
         "@types/node": "^20.11.19",
-        "@types/vscode": "^1.85.0",
+        "@types/vscode": "^1.101.0",
         "@vscode/vsce": "^2.15.0",
         "typescript": "^5.4.0"
     }

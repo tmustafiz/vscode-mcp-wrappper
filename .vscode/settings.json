@@ -1,4 +1,5 @@
 {
+    "telemetry.telemetryLevel": "off",
     "terminal.integrated.env.osx": {
         "NODE_EXTRA_CA_CERTS": "${env:NODE_EXTRA_CA_CERTS}",
         "MCP_BASE": "http://localhost:8081/db-mcp-server/",

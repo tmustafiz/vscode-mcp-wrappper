@@ -44,20 +44,27 @@ export class McpClient {
 
   /** Normalize URL to handle trailing slashes and ensure proper format */
   private normalizeUrl(url: string): string {
+    console.log(`Normalizing URL: ${url}`);
+    
     // If URL doesn't start with protocol, add http://
     if (!url.startsWith('http://') && !url.startsWith('https://')) {
       url = `http://${url}`;
+      console.log(`Added protocol: ${url}`);
     }
     
     // Create URL object to normalize it
     const urlObj = new URL(url);
+    console.log(`URL object: ${urlObj.toString()}`);
     
     // For Starlette ASGI servers that expect trailing slash, ensure it's present
     if (urlObj.pathname && !urlObj.pathname.endsWith('/')) {
       urlObj.pathname += '/';
+      console.log(`Added trailing slash: ${urlObj.toString()}`);
     }
     
-    return urlObj.toString();
+    const finalUrl = urlObj.toString();
+    console.log(`Final normalized URL: ${finalUrl}`);
+    return finalUrl;
   }
 
   /** Initialize MCP connection */
