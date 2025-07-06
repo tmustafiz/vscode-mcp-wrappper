@@ -51,12 +51,24 @@ export async function activate(ctx: vscode.ExtensionContext) {
   let client: McpClient | null = null;
   let registeredTools: any[] = [];
 
+  // Tree view provider for MCP tools
+  const toolsProvider = new McpToolsProvider();
+  ctx.subscriptions.push(
+    vscode.window.registerTreeDataProvider('mcpWrapperView', toolsProvider)
+  );
+  
+  // Update tools in the tree view when they change
+  const updateTreeView = (tools: any[]) => {
+    toolsProvider.updateTools(tools);
+  };
+
   // Register commands
   ctx.subscriptions.push(
     vscode.commands.registerCommand('mcp-wrapper.reconnect', async () => {
       await initializeMcpClient(ctx, statusBarItem, (newClient, tools) => {
         client = newClient;
         registeredTools = tools;
+        updateTreeView(tools);
       });
     })
   );
@@ -145,21 +157,11 @@ export async function activate(ctx: vscode.ExtensionContext) {
         initializeMcpClient(ctx, statusBarItem, (newClient, tools) => {
           client = newClient;
           registeredTools = tools;
+          updateTreeView(tools);
         });
       }
     })
   );
-
-  // Tree view provider for MCP tools
-  const toolsProvider = new McpToolsProvider();
-  ctx.subscriptions.push(
-    vscode.window.registerTreeDataProvider('mcpWrapperView', toolsProvider)
-  );
-  
-  // Update tools in the tree view when they change
-  const updateTreeView = (tools: any[]) => {
-    toolsProvider.updateTools(tools);
-  };
 }
 
 /** Initialize MCP client and register tools */
@@ -182,8 +184,6 @@ async function initializeMcpClient(
     statusBarItem.text = '$(error) MCP';
     statusBarItem.tooltip = 'MCP Server: Configuration Error';
     
-    // Register mock tool for testing
-    await registerMockTool(ctx);
     return;
   }
 
@@ -266,38 +266,12 @@ async function initializeMcpClient(
     statusBarItem.text = '$(error) MCP';
     statusBarItem.tooltip = `Failed to connect to ${config.server}`;
     
-    // For testing: Register a mock tool to verify the extension works
-    console.log('Registering mock tool for testing...');
-    await registerMockTool(ctx);
-    
     // Return early - tools won't be available
     return;
   }
 }
 
-/** Register a mock tool for testing when server is unavailable */
-async function registerMockTool(ctx: vscode.ExtensionContext) {
-  const toolName = 'mcp_testTool';
-  
-  try {
-    ctx.subscriptions.push(
-      vscode.lm.registerTool(toolName, {
-        async invoke(input: any, token: vscode.CancellationToken) {
-          return new vscode.LanguageModelToolResult(
-            [new vscode.LanguageModelTextPart('Mock tool working! MCP server is not available.')]
-          );
-        }
-      })
-    );
-    
-    console.log(`Registered mock tool: ${toolName}`);
-  } catch (error) {
-    console.error(`Failed to register mock tool: ${error}`);
-    vscode.window.showInformationMessage(
-      'Language Model Tools API not available in this VS Code version.'
-    );
-  }
-}
+
 
 /** Dynamically register a tool based on server response */
 async function registerTool(ctx: vscode.ExtensionContext, client: McpClient, tool: any) {
