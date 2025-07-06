@@ -1,0 +1,17 @@
+{
+    "terminal.integrated.env.osx": {
+        "NODE_TLS_REJECT_UNAUTHORIZED": "0",
+        "MCP_BASE": "http://localhost:8081/db-mcp-server/",
+        "MCP_ALLOW_INSECURE": "true"
+    },
+    "terminal.integrated.env.linux": {
+        "NODE_TLS_REJECT_UNAUTHORIZED": "0",
+        "MCP_BASE": "http://localhost:8081/db-mcp-server/",
+        "MCP_ALLOW_INSECURE": "true"
+    },
+    "terminal.integrated.env.windows": {
+        "NODE_TLS_REJECT_UNAUTHORIZED": "0",
+        "MCP_BASE": "http://localhost:8081/db-mcp-server/",
+        "MCP_ALLOW_INSECURE": "true"
+    }
+} 
