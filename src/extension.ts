@@ -1,5 +1,5 @@
 import * as vscode from 'vscode';
-import { ToolsRegistryManager } from './registry/toolsRegistry';
+import { McpServerManager } from './registry/toolsRegistry';
 import { LanguageModelIntegration } from './languageModel/languageModelIntegration';
 import { McpConfigManager } from './config/mcpConfig';
 import { CommandRegistry } from './registry/commandRegistry';
@@ -14,13 +14,13 @@ export async function activate(ctx: vscode.ExtensionContext) {
   ctx.subscriptions.push(statusBarItem);
 
   // Initialize managers
-  const registryManager = ToolsRegistryManager.getInstance();
+  const mcpServerManager = McpServerManager.getInstance();
   const languageModelIntegration = LanguageModelIntegration.getInstance();
   const configManager = McpConfigManager.getInstance();
   const commandRegistry = CommandRegistry.getInstance();
 
-  // Set status bar item for registry manager
-  registryManager.setStatusBarItem(statusBarItem);
+  // Set status bar item for MCP server manager
+  mcpServerManager.setStatusBarItem(statusBarItem);
 
   // Update tools when they change (for status bar and commands)
   const updateTools = () => {
@@ -29,11 +29,11 @@ export async function activate(ctx: vscode.ExtensionContext) {
   };
 
   // Register all commands
-  commandRegistry.registerCommands(registryManager, languageModelIntegration, configManager, updateTools);
+  commandRegistry.registerCommands(mcpServerManager, languageModelIntegration, configManager, updateTools);
 
   // Initialize MCP servers and tools
   try {
-    await registryManager.initialize();
+    await mcpServerManager.initialize();
     updateTools();
     console.log('MCP Wrapper initialized successfully');
   } catch (error) {
@@ -49,7 +49,7 @@ export async function activate(ctx: vscode.ExtensionContext) {
         vscode.window.showInformationMessage('MCP configuration changed, reconnecting to servers...');
         
         // Reconnect with new configuration
-        registryManager.reconnect().then(() => {
+        mcpServerManager.reconnect().then(() => {
           updateTools();
         }).catch((error) => {
           vscode.window.showErrorMessage(`Failed to reconnect: ${error instanceof Error ? error.message : 'Unknown error'}`);
@@ -61,7 +61,7 @@ export async function activate(ctx: vscode.ExtensionContext) {
   // Cleanup on deactivation
   ctx.subscriptions.push({
     dispose: async () => {
-      await registryManager.dispose();
+      await mcpServerManager.dispose();
       commandRegistry.dispose();
     }
   });

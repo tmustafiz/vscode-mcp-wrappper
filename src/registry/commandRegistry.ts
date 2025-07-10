@@ -1,5 +1,5 @@
 import * as vscode from 'vscode';
-import { ToolsRegistryManager } from './toolsRegistry';
+import { McpServerManager } from './toolsRegistry';
 import { LanguageModelIntegration } from '../languageModel/languageModelIntegration';
 import { McpConfigManager } from '../config/mcpConfig';
 
@@ -20,7 +20,7 @@ export class CommandRegistry {
    * Register all MCP commands
    */
   registerCommands(
-    registryManager: ToolsRegistryManager,
+    mcpServerManager: McpServerManager,
     languageModelIntegration: LanguageModelIntegration,
     configManager: McpConfigManager,
     updateTools: () => void
@@ -29,7 +29,7 @@ export class CommandRegistry {
     this.disposables.push(
       vscode.commands.registerCommand('mcp-wrapper.reconnect', async () => {
         try {
-          await registryManager.reconnect();
+          await mcpServerManager.reconnect();
           updateTools();
           vscode.window.showInformationMessage('Successfully reconnected to MCP servers');
         } catch (error) {

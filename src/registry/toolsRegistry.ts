@@ -5,8 +5,8 @@ import { McpServerConfig, McpTool, ToolsRegistry, ToolCallResult } from '../type
 import { McpConfigManager } from '../config/mcpConfig';
 import { McpTransportFactory } from '../transport/mcpTransport';
 
-export class ToolsRegistryManager {
-  private static instance: ToolsRegistryManager;
+export class McpServerManager {
+  private static instance: McpServerManager;
   private registry: ToolsRegistry;
   private configManager: McpConfigManager;
   private statusBarItem?: vscode.StatusBarItem;
@@ -20,11 +20,11 @@ export class ToolsRegistryManager {
     this.configManager = McpConfigManager.getInstance();
   }
 
-  static getInstance(): ToolsRegistryManager {
-    if (!ToolsRegistryManager.instance) {
-      ToolsRegistryManager.instance = new ToolsRegistryManager();
+  static getInstance(): McpServerManager {
+    if (!McpServerManager.instance) {
+      McpServerManager.instance = new McpServerManager();
     }
-    return ToolsRegistryManager.instance;
+    return McpServerManager.instance;
   }
 
   /**
