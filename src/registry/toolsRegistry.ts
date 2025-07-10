@@ -1,6 +1,5 @@
 import * as vscode from 'vscode';
 import { Client } from '@modelcontextprotocol/sdk/client/index.js';
-import { ListToolsResultSchema, CallToolResultSchema } from '@modelcontextprotocol/sdk/types.js';
 import { McpServerConfig, McpTool, ToolsRegistry, ToolCallResult } from '../types/mcp';
 import { McpConfigManager } from '../config/mcpConfig';
 import { McpTransportFactory } from '../transport/mcpTransport';
@@ -63,6 +62,7 @@ export class McpServerManager {
         await this.initializeServer(config);
       }
 
+      console.log(`✅ MCP Server Manager: Connected to ${serverConfigs.length} server(s), ${this.registry.tools.size} tools available`);
       this.updateStatus(`Connected to ${serverConfigs.length} server(s), ${this.registry.tools.size} tools available`);
     } catch (error) {
       console.error('Failed to initialize tools registry:', error);
@@ -104,16 +104,13 @@ export class McpServerManager {
     try {
       console.log(`Discovering tools from server: ${serverName}`);
       
-      // Use the proper MCP SDK method to list tools
-      const result = await client.request({
-        method: 'tools/list',
-        params: {}
-      }, ListToolsResultSchema);
-
-      // Extract tools from the response
+      // Use the proper MCP SDK high-level method to list tools
+      const result = await client.listTools();
+      const toolNames: string[] = [];
+      
+      // Handle the result properly based on SDK structure
       if (result && typeof result === 'object' && 'tools' in result) {
         const tools = (result as any).tools || [];
-        const toolNames: string[] = [];
         
         for (const tool of tools) {
           const mcpTool: McpTool = {
@@ -128,12 +125,10 @@ export class McpServerManager {
           this.registry.tools.set(tool.name, mcpTool);
           toolNames.push(tool.name);
         }
-
-        this.registry.serverTools.set(serverName, toolNames);
-        console.log(`Discovered ${toolNames.length} tools from server: ${serverName}`);
-      } else {
-        console.warn(`No tools found in response from server: ${serverName}`);
       }
+
+      this.registry.serverTools.set(serverName, toolNames);
+      console.log(`Discovered ${toolNames.length} tools from server: ${serverName}`);
     } catch (error) {
       console.error(`Failed to discover tools from server ${serverName}:`, error);
       throw error;
@@ -144,7 +139,10 @@ export class McpServerManager {
    * Get all available tools for language model
    */
   getAvailableTools(): McpTool[] {
-    return Array.from(this.registry.tools.values());
+    const tools = Array.from(this.registry.tools.values());
+    console.log(`MCP Server Manager: Returning ${tools.length} tools from registry`);
+    console.log('Tool names:', tools.map(t => t.name));
+    return tools;
   }
 
   /**
@@ -175,25 +173,103 @@ export class McpServerManager {
         };
       }
 
-      // Use the proper MCP SDK method to call tools
-      const result = await server.request({
-        method: 'tools/call',
-        params: {
-          name: toolName,
-          arguments: arguments_
+      // Use the proper MCP SDK high-level method to call tools
+      const result = await server.callTool({
+        name: toolName,
+        arguments: arguments_
+      });
+
+      // Extract and format the result content for better usability
+      let formattedResult = result;
+      if (result && result.content && Array.isArray(result.content) && result.content.length > 0) {
+        const firstContent = result.content[0];
+        if (firstContent.type === 'text') {
+          formattedResult = firstContent.text;
         }
-      }, CallToolResultSchema);
+      }
 
       return {
         success: true,
-        data: result
+        data: formattedResult
       };
     } catch (error) {
       console.error(`Failed to call tool ${toolName}:`, error);
+      
+      // Provide more specific error messages based on error type
+      let errorMessage = 'Unknown error';
+      if (error instanceof Error) {
+        errorMessage = error.message;
+      } else if (typeof error === 'string') {
+        errorMessage = error;
+      } else if (error && typeof error === 'object' && 'message' in error) {
+        errorMessage = (error as any).message;
+      }
+
       return {
         success: false,
-        error: error instanceof Error ? error.message : 'Unknown error'
+        error: errorMessage
       };
+    }
+  }
+
+  /**
+   * Call a tool with streaming support
+   */
+  async callToolStream(
+    toolName: string, 
+    arguments_: any, 
+    onChunk: (data: any) => void
+  ): Promise<() => void> {
+    try {
+      const tool = this.registry.tools.get(toolName);
+      if (!tool) {
+        throw new Error(`Tool '${toolName}' not found`);
+      }
+
+      const server = this.registry.servers.get(tool.serverName);
+      if (!server) {
+        throw new Error(`Server '${tool.serverName}' not available`);
+      }
+
+      // Use the proper MCP SDK streaming method
+      const stream = await server.callToolStream({
+        name: toolName,
+        arguments: arguments_
+      });
+
+      // Process the stream
+      const processStream = async () => {
+        try {
+          for await (const chunk of stream) {
+            if (chunk && chunk.content && Array.isArray(chunk.content)) {
+              for (const item of chunk.content) {
+                if (item.type === 'text') {
+                  onChunk(item.text);
+                } else {
+                  onChunk(item);
+                }
+              }
+            } else {
+              onChunk(chunk);
+            }
+          }
+        } catch (error) {
+          console.error(`Stream processing error for tool ${toolName}:`, error);
+          throw error;
+        }
+      };
+
+      // Start processing the stream
+      processStream();
+
+      // Return cancellation function
+      return () => {
+        // The SDK handles cleanup automatically
+        console.log(`Stream cancelled for tool ${toolName}`);
+      };
+    } catch (error) {
+      console.error(`Failed to start streaming for tool ${toolName}:`, error);
+      throw error;
     }
   }
 

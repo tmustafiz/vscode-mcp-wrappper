@@ -21,10 +21,18 @@ export class McpConfigManager {
     const config = vscode.workspace.getConfiguration(this.configSection);
     const serversConfig = config.get<McpServerConfig[]>('servers', []);
     
+    console.log(`🔍 Config Manager: Reading settings from section '${this.configSection}'`);
+    console.log(`🔍 Config Manager: Raw servers config:`, JSON.stringify(serversConfig, null, 2));
+    
     // Validate and normalize configurations
-    return serversConfig
+    const validConfigs = serversConfig
       .filter(server => this.validateServerConfig(server))
       .map(server => this.normalizeServerConfig(server));
+    
+    console.log(`🔍 Config Manager: Valid server configs:`, validConfigs.length);
+    console.log(`🔍 Config Manager: Server names:`, validConfigs.map(c => c.name));
+    
+    return validConfigs;
   }
 
   /**

@@ -1,11 +1,11 @@
 {
-    "name": "vascode-mcp-wrapper",
-    "displayName": "Internal DB Tools",
+    "name": "vscode-mcp-wrapper",
+    "displayName": "Extension for MCP Wrapper",
     "version": "0.0.1",
     "publisher": "internal-dev",
     "repository": {
         "type": "git",
-        "url": "https://github.com/internal/vscode-mcp-wrapper.git"
+        "url": "https://github.com/tmustafiz/vscode-mcp-wrapper.git"
     },
     "engines": {
         "vscode": "^1.101.0"
@@ -17,9 +17,261 @@
     "contributes": {
         "languageModelTools": [
             {
-                "id": "mcp-tools",
-                "name": "MCP Tools",
-                "description": "Tools from MCP servers"
+                "name": "list_schemas",
+                "displayName": "list_schemas",
+                "modelDescription": "list_schemas",
+                "description": "list_schemas",
+                "canBeReferencedInPrompt": true,
+                "toolReferenceName": "list_schemas",
+                "userDescription": "list_schemas",
+                "inputSchema": {
+                    "type": "object",
+                    "properties": {},
+                    "additionalProperties": false,
+                    "$schema": "http://json-schema.org/draft-07/schema#"
+                }
+            },
+            {
+                "name": "list_tables",
+                "displayName": "list_tables",
+                "modelDescription": "list_tables",
+                "description": "list_tables",
+                "canBeReferencedInPrompt": true,
+                "toolReferenceName": "list_tables",
+                "userDescription": "list_tables",
+                "inputSchema": {
+                    "type": "object",
+                    "properties": {
+                        "schema": {
+                            "type": "string",
+                            "description": "The name of the schema to list tables from (e.g., 'public')"
+                        }
+                    },
+                    "required": [
+                        "schema"
+                    ],
+                    "additionalProperties": false,
+                    "$schema": "http://json-schema.org/draft-07/schema#"
+                }
+            },
+            {
+                "name": "list_columns",
+                "displayName": "list_columns",
+                "modelDescription": "list_columns",
+                "description": "list_columns",
+                "canBeReferencedInPrompt": true,
+                "toolReferenceName": "list_columns",
+                "userDescription": "list_columns",
+                "inputSchema": {
+                    "type": "object",
+                    "properties": {
+                        "schema": {
+                            "type": "string",
+                            "description": "The name of the schema containing the table"
+                        },
+                        "table": {
+                            "type": "string",
+                            "description": "The name of the table to list columns from"
+                        }
+                    },
+                    "required": [
+                        "schema",
+                        "table"
+                    ],
+                    "additionalProperties": false,
+                    "$schema": "http://json-schema.org/draft-07/schema#"
+                }
+            },
+            {
+                "name": "generate_erd_mermaid",
+                "displayName": "generate_erd_mermaid",
+                "modelDescription": "generate_erd_mermaid",
+                "description": "generate_erd_mermaid",
+                "canBeReferencedInPrompt": true,
+                "toolReferenceName": "generate_erd_mermaid",
+                "userDescription": "generate_erd_mermaid",
+                "inputSchema": {
+                    "type": "object",
+                    "properties": {
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "required": [
+                        "schema"
+                    ],
+                    "additionalProperties": false,
+                    "$schema": "http://json-schema.org/draft-07/schema#"
+                }
+            },
+            {
+                "name": "generate_erd_json",
+                "displayName": "generate_erd_json",
+                "modelDescription": "generate_erd_json",
+                "description": "generate_erd_json",
+                "canBeReferencedInPrompt": true,
+                "toolReferenceName": "generate_erd_json",
+                "userDescription": "generate_erd_json",
+                "inputSchema": {
+                    "type": "object",
+                    "properties": {
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "required": [
+                        "schema"
+                    ],
+                    "additionalProperties": false,
+                    "$schema": "http://json-schema.org/draft-07/schema#"
+                }
+            },
+            {
+                "name": "fuzzy_column_match",
+                "displayName": "fuzzy_column_match",
+                "modelDescription": "fuzzy_column_match",
+                "description": "fuzzy_column_match",
+                "canBeReferencedInPrompt": true,
+                "toolReferenceName": "fuzzy_column_match",
+                "userDescription": "fuzzy_column_match",
+                "inputSchema": {
+                    "type": "object",
+                    "properties": {
+                        "schema": {
+                            "type": "string"
+                        },
+                        "table": {
+                            "type": "string"
+                        },
+                        "keyword": {
+                            "type": "string"
+                        }
+                    },
+                    "required": [
+                        "schema",
+                        "table",
+                        "keyword"
+                    ],
+                    "additionalProperties": false,
+                    "$schema": "http://json-schema.org/draft-07/schema#"
+                }
+            },
+            {
+                "name": "sample_column_data",
+                "displayName": "sample_column_data",
+                "modelDescription": "sample_column_data",
+                "description": "sample_column_data",
+                "canBeReferencedInPrompt": true,
+                "toolReferenceName": "sample_column_data",
+                "userDescription": "sample_column_data",
+                "inputSchema": {
+                    "type": "object",
+                    "properties": {
+                        "schema": {
+                            "type": "string"
+                        },
+                        "table": {
+                            "type": "string"
+                        },
+                        "column": {
+                            "type": "string"
+                        },
+                        "limit": {
+                            "type": "number"
+                        }
+                    },
+                    "required": [
+                        "schema",
+                        "table",
+                        "column"
+                    ],
+                    "additionalProperties": false,
+                    "$schema": "http://json-schema.org/draft-07/schema#"
+                }
+            },
+            {
+                "name": "find_related_tables",
+                "displayName": "find_related_tables",
+                "modelDescription": "find_related_tables",
+                "description": "find_related_tables",
+                "canBeReferencedInPrompt": true,
+                "toolReferenceName": "find_related_tables",
+                "userDescription": "find_related_tables",
+                "inputSchema": {
+                    "type": "object",
+                    "properties": {
+                        "schema": {
+                            "type": "string"
+                        },
+                        "table": {
+                            "type": "string"
+                        }
+                    },
+                    "required": [
+                        "schema",
+                        "table"
+                    ],
+                    "additionalProperties": false,
+                    "$schema": "http://json-schema.org/draft-07/schema#"
+                }
+            },
+            {
+                "name": "describe_relationship",
+                "displayName": "describe_relationship",
+                "modelDescription": "describe_relationship",
+                "description": "describe_relationship",
+                "canBeReferencedInPrompt": true,
+                "toolReferenceName": "describe_relationship",
+                "userDescription": "describe_relationship",
+                "inputSchema": {
+                    "type": "object",
+                    "properties": {
+                        "schema": {
+                            "type": "string"
+                        },
+                        "table1": {
+                            "type": "string"
+                        },
+                        "table2": {
+                            "type": "string"
+                        }
+                    },
+                    "required": [
+                        "schema",
+                        "table1",
+                        "table2"
+                    ],
+                    "additionalProperties": false,
+                    "$schema": "http://json-schema.org/draft-07/schema#"
+                }
+            },
+            {
+                "name": "run_query",
+                "displayName": "run_query",
+                "modelDescription": "run_query",
+                "description": "run_query",
+                "canBeReferencedInPrompt": true,
+                "toolReferenceName": "run_query",
+                "userDescription": "run_query",
+                "inputSchema": {
+                    "type": "object",
+                    "properties": {
+                        "query": {
+                            "type": "string",
+                            "description": "The SELECT query to execute"
+                        },
+                        "clientId": {
+                            "type": "string",
+                            "description": "Unique identifier for rate limiting"
+                        }
+                    },
+                    "required": [
+                        "query",
+                        "clientId"
+                    ],
+                    "additionalProperties": false,
+                    "$schema": "http://json-schema.org/draft-07/schema#"
+                }
             }
         ],
         "commands": [
@@ -47,6 +299,11 @@
                 "command": "mcp-wrapper.testTool",
                 "title": "MCP: Test Tool",
                 "category": "MCP"
+            },
+            {
+                "command": "mcp-wrapper.showAgentTools",
+                "title": "MCP: Show Agent Tools",
+                "category": "MCP"
             }
         ],
         "menus": {
@@ -70,6 +327,10 @@
                 {
                     "command": "mcp-wrapper.testTool",
                     "when": "true"
+                },
+                {
+                    "command": "mcp-wrapper.showAgentTools",
+                    "when": "true"
                 }
             ]
         },
@@ -89,7 +350,11 @@
                             },
                             "transport": {
                                 "type": "string",
-                                "enum": ["http", "sse", "stdio"],
+                                "enum": [
+                                    "http",
+                                    "sse",
+                                    "stdio"
+                                ],
                                 "description": "Transport type for connecting to the server"
                             },
                             "url": {
@@ -102,7 +367,9 @@
                             },
                             "args": {
                                 "type": "array",
-                                "items": { "type": "string" },
+                                "items": {
+                                    "type": "string"
+                                },
                                 "description": "Command arguments (for stdio transport)"
                             },
                             "authToken": {
@@ -124,8 +391,11 @@
                                 "default": 3,
                                 "description": "Number of connection retry attempts"
                             }
-                                                },
-                        "required": ["name", "transport"]
+                        },
+                        "required": [
+                            "name",
+                            "transport"
+                        ]
                     }
                 }
             }
@@ -134,7 +404,9 @@
     "scripts": {
         "compile": "tsc -p .",
         "watch": "tsc -watch -p .",
-        "package": "npx @vscode/vsce package"
+        "package": "npx @vscode/vsce package",
+        "discover-tools": "node scripts/discover-and-update-tools.js",
+        "precompile": "npm run discover-tools"
     },
     "dependencies": {
         "@modelcontextprotocol/sdk": "^1.15.0",
@@ -143,7 +415,7 @@
     "devDependencies": {
         "@types/node": "^20.11.19",
         "@types/vscode": "^1.101.0",
-        "@vscode/vsce": "^2.15.0",
+        "@vscode/vsce": "^3.6.0",
         "typescript": "^5.4.0"
     }
 }

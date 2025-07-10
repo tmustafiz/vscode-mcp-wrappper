@@ -34,6 +34,10 @@ export async function activate(ctx: vscode.ExtensionContext) {
   // Initialize MCP servers and tools
   try {
     await mcpServerManager.initialize();
+    
+    // Initialize language model integration
+    await languageModelIntegration.initialize();
+    
     updateTools();
     console.log('MCP Wrapper initialized successfully');
   } catch (error) {

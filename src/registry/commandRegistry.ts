@@ -102,6 +102,23 @@ export class CommandRegistry {
         vscode.window.showInformationMessage(toolInfoText);
       })
     );
+
+    // Show agent tools command
+    this.disposables.push(
+      vscode.commands.registerCommand('mcp-wrapper.showAgentTools', () => {
+        const agentToolNames = languageModelIntegration.getAgentToolNames();
+        
+        if (agentToolNames.length === 0) {
+          vscode.window.showInformationMessage('No agent tools available.');
+          return;
+        }
+
+        const toolList = agentToolNames.join('\n');
+        const message = `Available Agent Tools (${agentToolNames.length}):\n\n${toolList}`;
+        
+        vscode.window.showInformationMessage(message);
+      })
+    );
   }
 
   /**
