@@ -96,6 +96,7 @@ The extension is built with a modern, modular architecture using the official MC
 - **McpConfigManager**: Manages server configurations from VS Code settings
 - **McpTransportFactory**: Creates appropriate transport instances (HTTP, SSE, stdio) using official SDK
 - **ToolsRegistryManager**: Manages MCP server connections and tool discovery with proper SDK integration
+- **CommandRegistry**: Handles command registration and management
 - **LanguageModelIntegration**: Provides tools to VS Code's language model system
 
 ### File Structure
@@ -107,7 +108,8 @@ src/
 ├── transport/
 │   └── mcpTransport.ts       # Transport factory using official SDK
 ├── registry/
-│   └── toolsRegistry.ts      # Tools registry with proper SDK integration
+│   ├── toolsRegistry.ts      # Tools registry with proper SDK integration
+│   └── commandRegistry.ts    # Command registration and management
 ├── languageModel/
 │   └── languageModelIntegration.ts  # Language model integration
 ├── types/

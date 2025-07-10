@@ -46,21 +46,24 @@ export class McpTransportFactory {
     }
 
     const normalizedUrl = this.normalizeUrl(config.url);
-    const headers: Record<string, string> = {};
+    
+    // Only create headers object if we have an auth token
+    const requestInit: any = {};
     
     if (config.authToken) {
-      headers.Authorization = `Bearer ${config.authToken}`;
+      requestInit.headers = {
+        Authorization: `Bearer ${config.authToken}`
+      };
+    }
+
+    // Handle insecure connections
+    if (config.allowInsecure) {
+      // Note: This is a simplified approach. In production, you might want
+      // to handle this more carefully with proper certificate validation
     }
 
     return new StreamableHTTPClientTransport(new URL(normalizedUrl), {
-      requestInit: {
-        headers,
-        // Handle insecure connections
-        ...(config.allowInsecure && {
-          // Note: This is a simplified approach. In production, you might want
-          // to handle this more carefully with proper certificate validation
-        })
-      }
+      requestInit
     });
   }
 
