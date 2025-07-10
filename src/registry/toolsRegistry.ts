@@ -1,5 +1,6 @@
 import * as vscode from 'vscode';
 import { Client } from '@modelcontextprotocol/sdk/client/index.js';
+import { ListToolsResultSchema, CallToolResultSchema } from '@modelcontextprotocol/sdk/types.js';
 import { McpServerConfig, McpTool, ToolsRegistry, ToolCallResult } from '../types/mcp';
 import { McpConfigManager } from '../config/mcpConfig';
 import { McpTransportFactory } from '../transport/mcpTransport';
@@ -109,37 +110,38 @@ export class ToolsRegistryManager {
    */
   private async discoverTools(serverName: string, client: Client): Promise<void> {
     try {
-      // For now, we'll use a mock approach since the MCP SDK interface is complex
-      // In a real implementation, you would use the proper MCP SDK methods
       console.log(`Discovering tools from server: ${serverName}`);
       
-      // Mock tool discovery - replace this with actual MCP SDK calls
-      const mockTools = [
-        {
-          name: 'example_tool',
-          description: { name: 'Example Tool', description: 'An example MCP tool' },
-          inputSchema: { type: 'object', properties: { query: { type: 'string' } } }
+      // Use the proper MCP SDK method to list tools
+      const result = await client.request({
+        method: 'tools/list',
+        params: {}
+      }, ListToolsResultSchema);
+
+      // Extract tools from the response
+      if (result && typeof result === 'object' && 'tools' in result) {
+        const tools = (result as any).tools || [];
+        const toolNames: string[] = [];
+        
+        for (const tool of tools) {
+          const mcpTool: McpTool = {
+            name: tool.name,
+            displayName: tool.description?.name || tool.name,
+            description: tool.description?.description || '',
+            inputSchema: tool.inputSchema || {},
+            outputSchema: tool.outputSchema,
+            serverName: serverName
+          };
+
+          this.registry.tools.set(tool.name, mcpTool);
+          toolNames.push(tool.name);
         }
-      ];
 
-      const toolNames: string[] = [];
-      
-      for (const tool of mockTools) {
-        const mcpTool: McpTool = {
-          name: tool.name,
-          displayName: tool.description?.name || tool.name,
-          description: tool.description?.description || '',
-          inputSchema: tool.inputSchema || {},
-          outputSchema: undefined,
-          serverName: serverName
-        };
-
-        this.registry.tools.set(tool.name, mcpTool);
-        toolNames.push(tool.name);
+        this.registry.serverTools.set(serverName, toolNames);
+        console.log(`Discovered ${toolNames.length} tools from server: ${serverName}`);
+      } else {
+        console.warn(`No tools found in response from server: ${serverName}`);
       }
-
-      this.registry.serverTools.set(serverName, toolNames);
-      console.log(`Discovered ${toolNames.length} tools from server: ${serverName}`);
     } catch (error) {
       console.error(`Failed to discover tools from server ${serverName}:`, error);
       throw error;
@@ -181,13 +183,14 @@ export class ToolsRegistryManager {
         };
       }
 
+      // Use the proper MCP SDK method to call tools
       const result = await server.request({
         method: 'tools/call',
         params: {
           name: toolName,
           arguments: arguments_
         }
-      });
+      }, CallToolResultSchema);
 
       return {
         success: true,
