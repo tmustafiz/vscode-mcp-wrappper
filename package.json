@@ -15,7 +15,13 @@
     ],
     "main": "./dist/extension.js",
     "contributes": {
-        "languageModelTools": [],
+        "languageModelTools": [
+            {
+                "id": "mcp-tools",
+                "name": "MCP Tools",
+                "description": "Tools from MCP servers"
+            }
+        ],
         "commands": [
             {
                 "command": "mcp-wrapper.reconnect",
@@ -95,30 +101,82 @@
         "configuration": {
             "title": "MCP Wrapper",
             "properties": {
+                "mcpWrapper.servers": {
+                    "type": "array",
+                    "default": [],
+                    "description": "MCP server configurations",
+                    "items": {
+                        "type": "object",
+                        "properties": {
+                            "name": {
+                                "type": "string",
+                                "description": "Unique name for the server"
+                            },
+                            "transport": {
+                                "type": "string",
+                                "enum": ["http", "sse", "stdio"],
+                                "description": "Transport type for connecting to the server"
+                            },
+                            "url": {
+                                "type": "string",
+                                "description": "Server URL (required for http/sse transport)"
+                            },
+                            "command": {
+                                "type": "string",
+                                "description": "Command to run (required for stdio transport)"
+                            },
+                            "args": {
+                                "type": "array",
+                                "items": { "type": "string" },
+                                "description": "Command arguments (for stdio transport)"
+                            },
+                            "authToken": {
+                                "type": "string",
+                                "description": "Authentication token (optional)"
+                            },
+                            "allowInsecure": {
+                                "type": "boolean",
+                                "default": false,
+                                "description": "Allow insecure connections"
+                            },
+                            "timeout": {
+                                "type": "number",
+                                "default": 10000,
+                                "description": "Connection timeout in milliseconds"
+                            },
+                            "retries": {
+                                "type": "number",
+                                "default": 3,
+                                "description": "Number of connection retry attempts"
+                            }
+                        },
+                        "required": ["name", "transport"]
+                    }
+                },
                 "mcpWrapper.serverUrl": {
                     "type": "string",
                     "default": "http://localhost:8081/db-mcp-server/",
-                    "description": "MCP server URL (e.g., 'localhost:8000' or 'https://mcp.example.com')"
+                    "description": "Legacy: MCP server URL (e.g., 'localhost:8000' or 'https://mcp.example.com')"
                 },
                 "mcpWrapper.authToken": {
                     "type": "string",
                     "default": "",
-                    "description": "Authentication token for MCP server (optional)"
+                    "description": "Legacy: Authentication token for MCP server (optional)"
                 },
                 "mcpWrapper.allowInsecure": {
                     "type": "boolean",
                     "default": false,
-                    "description": "Allow insecure HTTP connections (for development)"
+                    "description": "Legacy: Allow insecure HTTP connections (for development)"
                 },
                 "mcpWrapper.timeout": {
                     "type": "number",
                     "default": 10000,
-                    "description": "Connection timeout in milliseconds"
+                    "description": "Legacy: Connection timeout in milliseconds"
                 },
                 "mcpWrapper.retries": {
                     "type": "number",
                     "default": 3,
-                    "description": "Number of connection retry attempts"
+                    "description": "Legacy: Number of connection retry attempts"
                 }
             }
         }

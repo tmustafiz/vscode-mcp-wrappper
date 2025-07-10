@@ -1,0 +1,33 @@
+{
+  "mcpWrapper.servers": [
+    {
+      "name": "database-server",
+      "transport": "http",
+      "url": "http://localhost:8000",
+      "authToken": "your-auth-token-here",
+      "allowInsecure": false,
+      "timeout": 10000,
+      "retries": 3
+    },
+    {
+      "name": "file-server",
+      "transport": "stdio",
+      "command": "python",
+      "args": ["-m", "mcp_file_server"],
+      "timeout": 5000
+    },
+    {
+      "name": "sse-server",
+      "transport": "sse",
+      "url": "http://localhost:8001/events",
+      "timeout": 8000
+    }
+  ],
+  
+  // Legacy configuration (for backward compatibility)
+  "mcpWrapper.serverUrl": "http://localhost:8081/db-mcp-server/",
+  "mcpWrapper.authToken": "",
+  "mcpWrapper.allowInsecure": false,
+  "mcpWrapper.timeout": 10000,
+  "mcpWrapper.retries": 3
+} 
