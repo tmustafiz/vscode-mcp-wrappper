@@ -124,34 +124,9 @@
                                 "default": 3,
                                 "description": "Number of connection retry attempts"
                             }
-                        },
+                                                },
                         "required": ["name", "transport"]
                     }
-                },
-                "mcpWrapper.serverUrl": {
-                    "type": "string",
-                    "default": "http://localhost:8081/db-mcp-server/",
-                    "description": "Legacy: MCP server URL (e.g., 'localhost:8000' or 'https://mcp.example.com')"
-                },
-                "mcpWrapper.authToken": {
-                    "type": "string",
-                    "default": "",
-                    "description": "Legacy: Authentication token for MCP server (optional)"
-                },
-                "mcpWrapper.allowInsecure": {
-                    "type": "boolean",
-                    "default": false,
-                    "description": "Legacy: Allow insecure HTTP connections (for development)"
-                },
-                "mcpWrapper.timeout": {
-                    "type": "number",
-                    "default": 10000,
-                    "description": "Legacy: Connection timeout in milliseconds"
-                },
-                "mcpWrapper.retries": {
-                    "type": "number",
-                    "default": 3,
-                    "description": "Legacy: Number of connection retry attempts"
                 }
             }
         }

@@ -5,11 +5,12 @@ A VS Code extension that integrates with Model Context Protocol (MCP) servers to
 ## Features
 
 - **Multi-Server Support**: Connect to multiple MCP servers simultaneously
-- **Multiple Transport Types**: Support for HTTP, SSE, and stdio transports
+- **Multiple Transport Types**: Support for HTTP, SSE, and stdio transports using official MCP SDK
 - **Dynamic Tool Discovery**: Automatically discover and register tools from MCP servers
 - **Language Model Integration**: Provide tools to VS Code's language model system
-- **Configuration Management**: Flexible server configuration through VS Code settings
+- **Modern Configuration**: Flexible server configuration through VS Code settings
 - **Real-time Status**: Status bar indicator showing connection and tool availability
+- **Type Safety**: Full TypeScript support with proper MCP SDK integration
 
 ## Configuration
 
@@ -71,26 +72,11 @@ Configure MCP servers in your VS Code settings (`.vscode/settings.json`):
 }
 ```
 
-### Legacy Configuration
-
-For backward compatibility, you can still use the legacy configuration format:
-
-```json
-{
-  "mcpWrapper.serverUrl": "http://localhost:8000",
-  "mcpWrapper.authToken": "your-token",
-  "mcpWrapper.allowInsecure": false,
-  "mcpWrapper.timeout": 10000,
-  "mcpWrapper.retries": 3
-}
-```
-
 ## Environment Variables
 
-The following environment variables are supported:
+The following environment variables are supported for server configurations:
 
-- `MCP_BASE`: Base URL for MCP server (legacy)
-- `MCP_TOKEN`: Authentication token
+- `MCP_TOKEN`: Authentication token (can be used in server configs)
 - `MCP_ALLOW_INSECURE`: Allow insecure connections (set to "true")
 
 ## Commands
@@ -103,13 +89,13 @@ The following environment variables are supported:
 
 ## Architecture
 
-The extension is built with a modular architecture:
+The extension is built with a modern, modular architecture using the official MCP TypeScript SDK:
 
 ### Core Components
 
 - **McpConfigManager**: Manages server configurations from VS Code settings
-- **McpTransportFactory**: Creates appropriate transport instances (HTTP, SSE, stdio)
-- **ToolsRegistryManager**: Manages MCP server connections and tool discovery
+- **McpTransportFactory**: Creates appropriate transport instances (HTTP, SSE, stdio) using official SDK
+- **ToolsRegistryManager**: Manages MCP server connections and tool discovery with proper SDK integration
 - **LanguageModelIntegration**: Provides tools to VS Code's language model system
 
 ### File Structure
@@ -119,15 +105,23 @@ src/
 ├── config/
 │   └── mcpConfig.ts          # Configuration management
 ├── transport/
-│   └── mcpTransport.ts       # Transport factory
+│   └── mcpTransport.ts       # Transport factory using official SDK
 ├── registry/
-│   └── toolsRegistry.ts      # Tools registry and server management
+│   └── toolsRegistry.ts      # Tools registry with proper SDK integration
 ├── languageModel/
 │   └── languageModelIntegration.ts  # Language model integration
 ├── types/
 │   └── mcp.ts               # Type definitions
 └── extension.ts             # Main extension entry point
 ```
+
+### SDK Integration
+
+The extension uses the official [Model Context Protocol TypeScript SDK](https://github.com/modelcontextprotocol/typescript-sdk) for:
+- **Transport Management**: HTTP, SSE, and stdio transports
+- **Tool Discovery**: Proper `tools/list` requests with schema validation
+- **Tool Execution**: Proper `tools/call` requests with schema validation
+- **Type Safety**: Full TypeScript support with Zod schemas
 
 ## Development
 
@@ -153,12 +147,19 @@ npm run package    # Create VSIX package
 
 ## Usage
 
-1. Install the extension
-2. Configure MCP servers in your workspace settings
-3. The extension will automatically connect to servers and discover tools
-4. Tools will be available to language models in VS Code
-5. Use the status bar to monitor connection status
-6. Use commands to manage connections and view tools
+1. **Install the extension** from the VS Code marketplace or build from source
+2. **Configure MCP servers** in your workspace settings (`.vscode/settings.json`)
+3. **Automatic connection** - The extension will connect to configured servers and discover tools
+4. **Language model integration** - Tools are automatically available to VS Code's language models
+5. **Monitor status** - Use the status bar to see connection status and tool count
+6. **Manage connections** - Use commands to reconnect, view tools, and test functionality
+
+### Example Workflow
+
+1. Configure your MCP servers in settings
+2. Extension automatically connects and discovers tools
+3. Language models can now use the discovered tools
+4. Use commands to manage and monitor the system
 
 ## Troubleshooting
 

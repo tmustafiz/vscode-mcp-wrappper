@@ -52,14 +52,6 @@ export class ToolsRegistryManager {
 
       // Get server configurations
       const serverConfigs = this.configManager.getServerConfigs();
-      
-      // Add legacy config if no servers configured
-      if (serverConfigs.length === 0) {
-        const legacyConfig = this.configManager.getLegacyConfig();
-        if (legacyConfig) {
-          serverConfigs.push(legacyConfig);
-        }
-      }
 
       if (serverConfigs.length === 0) {
         this.updateStatus('No MCP servers configured', 'error');

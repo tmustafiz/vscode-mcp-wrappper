@@ -93,25 +93,5 @@ export class McpConfigManager {
     };
   }
 
-  /**
-   * Get legacy configuration for backward compatibility
-   */
-  getLegacyConfig(): McpServerConfig | null {
-    const config = vscode.workspace.getConfiguration(this.configSection);
-    
-    const serverUrl = config.get<string>('serverUrl') || process.env['MCP_BASE'];
-    if (!serverUrl) {
-      return null;
-    }
 
-    return {
-      name: 'legacy-server',
-      transport: 'http',
-      url: serverUrl,
-      authToken: config.get<string>('authToken') || process.env['MCP_TOKEN'],
-      allowInsecure: config.get<boolean>('allowInsecure') || process.env['MCP_ALLOW_INSECURE'] === 'true',
-      timeout: config.get<number>('timeout') || 10000,
-      retries: config.get<number>('retries') || 3
-    };
-  }
 } 

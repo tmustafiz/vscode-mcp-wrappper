@@ -22,12 +22,5 @@
       "url": "http://localhost:8001/events",
       "timeout": 8000
     }
-  ],
-  
-  // Legacy configuration (for backward compatibility)
-  "mcpWrapper.serverUrl": "http://localhost:8081/db-mcp-server/",
-  "mcpWrapper.authToken": "",
-  "mcpWrapper.allowInsecure": false,
-  "mcpWrapper.timeout": 10000,
-  "mcpWrapper.retries": 3
+  ]
 } 
