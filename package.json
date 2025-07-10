@@ -71,31 +71,6 @@
                     "command": "mcp-wrapper.testTool",
                     "when": "true"
                 }
-            ],
-            "view/title": [
-                {
-                    "command": "mcp-wrapper.reconnect",
-                    "when": "view == mcpWrapperView",
-                    "group": "navigation"
-                }
-            ]
-        },
-        "viewsContainers": {
-            "activitybar": [
-                {
-                    "id": "mcpWrapper",
-                    "title": "MCP Tools",
-                    "icon": "$(server)"
-                }
-            ]
-        },
-        "views": {
-            "mcpWrapper": [
-                {
-                    "id": "mcpWrapperView",
-                    "name": "Available Tools",
-                    "when": "true"
-                }
             ]
         },
         "configuration": {

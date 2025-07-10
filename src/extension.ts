@@ -20,16 +20,10 @@ export async function activate(ctx: vscode.ExtensionContext) {
   // Set status bar item for registry manager
   registryManager.setStatusBarItem(statusBarItem);
 
-  // Tree view provider for MCP tools
-  const toolsProvider = new McpToolsProvider();
-  ctx.subscriptions.push(
-    vscode.window.registerTreeDataProvider('mcpWrapperView', toolsProvider)
-  );
-
-  // Update tools in the tree view when they change
-  const updateTreeView = () => {
-    const toolInfo = languageModelIntegration.getToolInfo();
-    toolsProvider.updateTools(toolInfo.tools);
+  // Update tools when they change (for status bar and commands)
+  const updateTools = () => {
+    // Tools are updated automatically through the registry manager
+    // No tree view to update
   };
 
   // Register commands
@@ -37,7 +31,7 @@ export async function activate(ctx: vscode.ExtensionContext) {
     vscode.commands.registerCommand('mcp-wrapper.reconnect', async () => {
       try {
         await registryManager.reconnect();
-        updateTreeView();
+        updateTools();
         vscode.window.showInformationMessage('Successfully reconnected to MCP servers');
       } catch (error) {
         vscode.window.showErrorMessage(`Failed to reconnect: ${error instanceof Error ? error.message : 'Unknown error'}`);
@@ -109,7 +103,7 @@ export async function activate(ctx: vscode.ExtensionContext) {
   // Initialize MCP servers and tools
   try {
     await registryManager.initialize();
-    updateTreeView();
+    updateTools();
     console.log('MCP Wrapper initialized successfully');
   } catch (error) {
     console.error('Failed to initialize MCP Wrapper:', error);
@@ -125,7 +119,7 @@ export async function activate(ctx: vscode.ExtensionContext) {
         
         // Reconnect with new configuration
         registryManager.reconnect().then(() => {
-          updateTreeView();
+          updateTools();
         }).catch((error) => {
           vscode.window.showErrorMessage(`Failed to reconnect: ${error instanceof Error ? error.message : 'Unknown error'}`);
         });
@@ -139,55 +133,6 @@ export async function activate(ctx: vscode.ExtensionContext) {
       await registryManager.dispose();
     }
   });
-}
-
-// Tree view provider for MCP tools
-class McpToolsProvider implements vscode.TreeDataProvider<McpToolItem> {
-  private _onDidChangeTreeData: vscode.EventEmitter<McpToolItem | undefined | null | void> = new vscode.EventEmitter<McpToolItem | undefined | null | void>();
-  readonly onDidChangeTreeData: vscode.Event<McpToolItem | undefined | null | void> = this._onDidChangeTreeData.event;
-
-  private tools: any[] = [];
-
-  updateTools(tools: any[]) {
-    this.tools = tools;
-    this._onDidChangeTreeData.fire();
-  }
-
-  getTreeItem(element: McpToolItem): vscode.TreeItem {
-    return element;
-  }
-
-  getChildren(element?: McpToolItem): Thenable<McpToolItem[]> {
-    if (element) {
-      // If element is a server, return its tools
-      return Promise.resolve([]);
-    } else {
-      // Return all tools
-      return Promise.resolve(
-        this.tools.map(tool => new McpToolItem(
-          tool.displayName || tool.name,
-          vscode.TreeItemCollapsibleState.None,
-          '$(tools)',
-          tool.description || 'No description',
-          tool
-        ))
-      );
-    }
-  }
-}
-
-class McpToolItem extends vscode.TreeItem {
-  constructor(
-    public readonly label: string,
-    public readonly collapsibleState: vscode.TreeItemCollapsibleState,
-    public readonly icon: string,
-    public readonly tooltip?: string,
-    public readonly tool?: any
-  ) {
-    super(label, collapsibleState);
-    this.iconPath = new vscode.ThemeIcon(icon);
-    this.tooltip = tooltip;
-  }
 }
 
 export function deactivate() {
