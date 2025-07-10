@@ -38,7 +38,7 @@ export class McpTransportFactory {
   }
 
   /**
-   * Create HTTP transport
+   * Create HTTP transport (Streamable HTTP)
    */
   private static createHttpTransport(config: McpServerConfig): StreamableHTTPClientTransport {
     if (!config.url) {
@@ -77,9 +77,18 @@ export class McpTransportFactory {
 
     const normalizedUrl = this.normalizeUrl(config.url);
     
-    // SSE transport doesn't support headers in the same way as HTTP
-    // Authentication would need to be handled differently (e.g., via URL parameters)
-    return new SSEClientTransport(new URL(normalizedUrl));
+    // For SSE transport, we need to handle authentication differently
+    // since it doesn't support headers in the same way as HTTP
+    let finalUrl = normalizedUrl;
+    
+    if (config.authToken) {
+      // Add auth token as URL parameter for SSE
+      const url = new URL(normalizedUrl);
+      url.searchParams.set('auth_token', config.authToken);
+      finalUrl = url.toString();
+    }
+
+    return new SSEClientTransport(new URL(finalUrl));
   }
 
   /**
