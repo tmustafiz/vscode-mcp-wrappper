@@ -7,17 +7,17 @@
 	"settings": {
 		"terminal.integrated.env.osx": {
 			"NODE_EXTRA_CA_CERTS": "${env:NODE_EXTRA_CA_CERTS}",
-			"MCP_BASE": "http://localhost:8081/db-mcp-server/",
+			"MCP_BASE": "http://localhost:8081/db-postgresql//",
 			"MCP_ALLOW_INSECURE": "true"
 		},
 		"terminal.integrated.env.linux": {
 			"NODE_EXTRA_CA_CERTS": "${env:NODE_EXTRA_CA_CERTS}",
-			"MCP_BASE": "http://localhost:8081/db-mcp-server/",
+			"MCP_BASE": "http://localhost:8081/db-postgresql//",
 			"MCP_ALLOW_INSECURE": "true"
 		},
 		"terminal.integrated.env.windows": {
 			"NODE_EXTRA_CA_CERTS": "${env:NODE_EXTRA_CA_CERTS}",
-			"MCP_BASE": "http://localhost:8081/db-mcp-server/",
+			"MCP_BASE": "http://localhost:8081/db-postgresql/",
 			"MCP_ALLOW_INSECURE": "true"
 		},
 		"mcpWrapper.servers": [{
