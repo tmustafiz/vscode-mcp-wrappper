@@ -111,7 +111,7 @@ The current VS Code MCP Wrapper extension has several critical issues that preve
   - Provide helpful error messages for invalid inputs
 - **Estimated Time**: 2-3 hours
 - **Dependencies**: TODO 2.1
-- **Status**: 🔴 Not Started
+- **Status**: ✅ Completed
 
 #### **TODO 2.3: Implement Tool Result Formatting**
 - **File**: `src/languageModel/languageModelIntegration.ts`
@@ -330,6 +330,7 @@ The current VS Code MCP Wrapper extension has several critical issues that preve
 - ✅ **TODO 1.4**: Implemented proper streaming support using SDK's `callToolStream()` method
 - ✅ **TODO 1.5**: Fixed transport configuration with proper SDK options, timeout, retry settings, and authentication
 - ✅ **TODO 2.1**: Implemented language model integration for agent mode with dynamic tool registration
+- ✅ **TODO 2.2**: Added tool schema validation and input filtering to handle VS Code's additional metadata properties (corrected to preserve toolInvokationToken)
 - ✅ **Deleted**: Removed unused `McpClient` class (dead code cleanup)
 - ✅ **Added**: Command to show available agent tools (`mcp-wrapper.showAgentTools`)
 
@@ -340,11 +341,12 @@ The current VS Code MCP Wrapper extension has several critical issues that preve
 4. **Better Error Handling**: More specific error messages and proper error propagation
 5. **Command Integration**: Added debugging commands to inspect available tools
 6. **Transport Configuration**: Proper timeout, retry, and authentication handling for all transport types
+7. **Input Validation**: Automatic filtering of VS Code's additional metadata properties while preserving MCP protocol properties like toolInvokationToken
 
 ### **Current Status**
 - **Phase 1**: 100% complete (5/5 items done) ✅
-- **Phase 2**: 33% complete (1/3 items done)
-- **Overall**: 28.6% complete (6/21 items done)
+- **Phase 2**: 67% complete (2/3 items done)
+- **Overall**: 33.3% complete (7/21 items done)
 
 ### **What's Next - Recommended Priority**
 

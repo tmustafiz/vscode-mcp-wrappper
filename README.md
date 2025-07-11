@@ -301,6 +301,17 @@ Each discovered tool includes:
 - Ensure workspace settings are loaded correctly
 - Use "Show Agent Tools" command to verify tool availability
 
+### Input Validation Errors
+
+If you see errors like "Additional properties are not allowed ('input', 'tokenizationOptions', 'toolInvokationToken' were unexpected)", this is a known issue with VS Code's language model system passing additional metadata to tools. The extension automatically filters VS Code-specific properties while preserving the `toolInvokationToken` (which contains important MCP session information). If you continue to see issues:
+
+1. Check the console logs for detailed debugging information
+2. Restart the extension using the "MCP Wrapper: Reconnect" command
+3. Ensure your MCP server's JSON schema is properly configured
+4. Try calling the tool again - the issue is usually transient
+
+**Note**: The `toolInvokationToken` property is a valid MCP protocol property that contains session information and should not be filtered out. The extension preserves this property while filtering out only VS Code-specific metadata.
+
 ### Configuration Issues
 
 - Validate JSON syntax in settings

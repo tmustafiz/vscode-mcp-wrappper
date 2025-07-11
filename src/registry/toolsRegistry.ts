@@ -115,8 +115,8 @@ export class McpServerManager {
         for (const tool of tools) {
           const mcpTool: McpTool = {
             name: tool.name,
-            displayName: tool.description?.name || tool.name,
-            description: tool.description?.description || '',
+            displayName: tool.name, // Use tool name as display name since description is a string
+            description: tool.description || '', // Use the string description directly
             inputSchema: tool.inputSchema || {},
             outputSchema: tool.outputSchema,
             serverName: serverName

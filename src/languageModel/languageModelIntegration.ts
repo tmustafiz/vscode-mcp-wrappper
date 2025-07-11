@@ -49,11 +49,55 @@ export class LanguageModelIntegration {
           async invoke(options: any, token: vscode.CancellationToken): Promise<vscode.LanguageModelToolResult> {
             try {
               const mcpManager = McpServerManager.getInstance();
-              const result = await mcpManager.callTool(tool.name, options || {});
+              
+              // Extract actual tool arguments from VS Code's options object
+              // VS Code passes additional properties like 'input', 'tokenizationOptions', 'cancellationToken'
+              // that are not part of the actual tool arguments
+              // Note: 'toolInvokationToken' is an MCP protocol property containing session info and should be preserved
+              let toolArguments = options?.input || options || {};
+              
+              // Handle different possible structures of the input
+              // Sometimes the actual arguments might be nested under 'arguments' or directly in 'input'
+              if (toolArguments && typeof toolArguments === 'object') {
+                // If input contains 'arguments', use that
+                if ('arguments' in toolArguments && toolArguments.arguments) {
+                  toolArguments = toolArguments.arguments;
+                }
+                // If input is the arguments object itself, use it as is
+                // Otherwise, fall back to the original input
+              }
+              
+              // Filter out known VS Code-specific properties that might cause validation errors
+              // Note: toolInvokationToken is NOT a VS Code property - it's an MCP protocol property
+              // that contains session information and should be preserved
+              if (toolArguments && typeof toolArguments === 'object') {
+                const vsCodeProperties = ['input', 'tokenizationOptions', 'cancellationToken'];
+                const filteredArguments: any = {};
+                
+                for (const [key, value] of Object.entries(toolArguments)) {
+                  if (!vsCodeProperties.includes(key)) {
+                    filteredArguments[key] = value;
+                  }
+                }
+                
+                toolArguments = filteredArguments;
+              }
+              
+              // Debug logging to help troubleshoot input validation issues
+              console.log(`🔧 Tool ${tool.name} called with options:`, JSON.stringify(options, null, 2));
+              console.log(`🔧 Extracted tool arguments:`, JSON.stringify(toolArguments, null, 2));
+              
+              const result = await mcpManager.callTool(tool.name, toolArguments);
               
               if (!result.success) {
+                // Provide more helpful error messages for input validation issues
+                let errorMessage = result.error || 'Unknown error';
+                if (errorMessage.includes('Additional properties are not allowed')) {
+                  errorMessage = `Input validation error: The tool received unexpected properties. This may be due to VS Code's language model system passing additional metadata (excluding toolInvokationToken which is a valid MCP property). Please try again or contact support if the issue persists. Original error: ${result.error}`;
+                }
+                
                 return new vscode.LanguageModelToolResult([
-                  new vscode.LanguageModelTextPart(`Error: ${result.error}`)
+                  new vscode.LanguageModelTextPart(`Error: ${errorMessage}`)
                 ]);
               }
 

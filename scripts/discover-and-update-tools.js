@@ -76,14 +76,19 @@ async function discoverToolsFromServer(config) {
       const toolList = result.tools || [];
       
       for (const tool of toolList) {
+        // Log the raw tool object to understand its structure
+        console.log(`🔍 Raw tool object for ${tool.name}:`, JSON.stringify(tool, null, 2));
+        console.log(`🔍 Tool description type:`, typeof tool.description);
+        console.log(`🔍 Tool description value:`, tool.description);
+        
         const languageModelTool = {
           name: tool.name, // No mcp_ prefix
-          displayName: tool.description?.name || tool.name,
-          modelDescription: tool.description?.description || tool.description?.name || tool.name,
-          description: tool.description?.description || tool.description?.name || tool.name,
+          displayName: tool.name, // Use tool name as display name since description is a string
+          modelDescription: tool.description || tool.name, // Use the string description directly
+          description: tool.description || tool.name, // Use the string description directly
           canBeReferencedInPrompt: true,
           toolReferenceName: tool.name,
-          userDescription: tool.description?.name || tool.name,
+          userDescription: tool.name, // Use tool name as user description
           inputSchema: tool.inputSchema || {
             type: "object",
             properties: {
